@@ -7,10 +7,18 @@ import { ReactComponent as ReactLogo } from "./react-logo.svg";
 
 function App({ headline, showLogos, backgroundImage }) {
   return (
-    <svg>
+    <svg viewBox="0 0 512 512" style={{ width: 512, height: 512 }}>
       <text x="50%" y="50%" style={{ fontSize: "72px" }}>
         Test
       </text>
+      <rect
+        x="0"
+        y="0"
+        width="512"
+        height="512"
+        fill="none"
+        stroke="hotpink"
+      ></rect>
     </svg>
   );
 }
