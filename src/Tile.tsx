@@ -2,12 +2,10 @@ import { haltonND, kroneckerND, plasticND } from "@thi.ng/lowdisc";
 import { take } from "@thi.ng/transducers";
 import boxIntersect from "box-intersect";
 import { renderToStaticMarkup } from "react-dom/server";
-// import { Chance } from "chance";
 
 const RESOLUTION = 512;
-// const chance = new Chance(1337);
-// const random = () => chance.floating({ min: 0, max: 1 });
 const random = Math.random;
+const ITERATIONS = 256;
 
 export class Tile {
   text!: string;
@@ -43,11 +41,6 @@ export class Tile {
       metrics,
       fontSize,
     } = props;
-
-    // const fontSize = fit({
-    //   fontFamily,
-    //   text,
-    // });
 
     const generator = {
       halton: haltonND.bind(null, [2, 3]),
@@ -101,7 +94,7 @@ export class Tile {
       });
     };
 
-    for (let index = 0; index < 512; index++) {
+    for (let index = 0; index < ITERATIONS; index++) {
       tick();
     }
 
@@ -198,39 +191,20 @@ export function fit({
   fontFamily: string;
   text: string;
 }) {
-  const { width } = getMetrics({ fontFamily, text });
+  const { width } = measure({
+    font: `${RESOLUTION / 8}px ${fontFamily}`,
+    text,
+  });
   return (RESOLUTION / 8) * (RESOLUTION / 3 / width);
 }
 
-export function getMetrics({
-  fontFamily,
-  text,
-}: {
-  fontFamily: string;
-  text: string;
-}) {
+export function measure({ font, text }: { font: string; text: string }) {
   const canvas = document.createElement("canvas");
   canvas.width = RESOLUTION;
   canvas.height = RESOLUTION;
   const ctx = canvas.getContext("2d")!;
-  let fontSize = RESOLUTION / 8;
-  ctx.font = `${fontSize}px ${fontFamily}`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "alphabetic";
+  ctx.font = font;
   return ctx.measureText(text);
 }
-
-// export function getMetrics({ font, text }: { font: string; text: string }) {
-//   const canvas = document.createElement("canvas");
-//   canvas.width = RESOLUTION;
-//   canvas.height = RESOLUTION;
-//   const ctx = canvas.getContext("2d")!;
-//   ctx.textAlign = "center";
-//   ctx.textBaseline = "alphabetic";
-//   let fontSize = RESOLUTION / 8;
-//   ctx.font = `${fontSize}px ${font}`;
-//   return ctx.measureText(text);
-// }
-
-// const fontFamily = "blankie";
-// const font = new FontFace(fontFamily, fontBytes);
-// await font.load();
-// document.fonts.add(font);

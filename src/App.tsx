@@ -3,10 +3,10 @@ import { useEffect, useState } from "react";
 /* eslint-disable import/no-webpack-loader-syntax */
 import Worker from "worker-loader!./worker";
 import { chance } from "./chance";
-import { fit, Tile } from "./Tile";
+import { fit, measure, Tile } from "./Tile";
 
 export function App(props: any) {
-  const [text, setText] = useState("Katharine");
+  const [text, setText] = useState(chance.first());
   const [tile, setTile] = useState<Tile | null>(null);
 
   useEffect(() => {
@@ -17,16 +17,8 @@ export function App(props: any) {
       fontFamily: font,
       text,
     });
-    const measure = (font: string) => {
-      const canvas = document.createElement("canvas");
-      const RESOLUTION = 512;
-      canvas.width = RESOLUTION;
-      canvas.height = RESOLUTION;
-      const ctx = canvas.getContext("2d")!;
-      ctx.font = font;
-      return ctx.measureText(text);
-    };
-    const metrics = measure(`${fontSize}px ${font}`);
+
+    const metrics = measure({ font: `${fontSize}px ${font}`, text });
     const props = {
       background: chance.pickone(["#111111", "#EEEEEE"]),
       colors: ["#DA97B2", "#7EBCBE", "#676396"],
