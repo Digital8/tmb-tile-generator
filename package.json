@@ -4,14 +4,20 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@testing-library/jest-dom": "^5.11.4",
-    "@testing-library/react": "^11.1.0",
-    "@testing-library/user-event": "^12.1.10",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
-    "react-scripts": "4.0.0",
-    "typeface-ibm-plex-sans": "^1.1.13",
-    "web-vitals": "^0.2.4"
+    "@thi.ng/lowdisc": "^0.1.7",
+    "@thi.ng/transducers": "^7.9.2",
+    "@types/box-intersect": "^1.0.0",
+    "@types/chance": "^1.1.3",
+    "@types/qs": "^6.9.7",
+    "@types/react": "^17.0.24",
+    "@types/react-dom": "^17.0.9",
+    "box-intersect": "^1.0.2",
+    "chance": "^1.1.8",
+    "qs": "^6.10.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-scripts": "^4.0.3",
+    "typescript": "^4.4.3"
   },
   "scripts": {
     "start": "react-scripts start",
