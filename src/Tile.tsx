@@ -1,61 +1,59 @@
 import { haltonND, kroneckerND, plasticND } from "@thi.ng/lowdisc";
 import { take } from "@thi.ng/transducers";
 import boxIntersect from "box-intersect";
+import { renderToStaticMarkup } from "react-dom/server";
+// import { Chance } from "chance";
 
 const RESOLUTION = 512;
+// const chance = new Chance(1337);
+// const random = () => chance.floating({ min: 0, max: 1 });
+const random = Math.random;
 
 export class Tile {
   text!: string;
   texts!: any[];
   fontSize!: number;
-  ctx!: CanvasRenderingContext2D;
   gap!: number;
   fontFamily!: string;
   background!: string;
-  canvas!: HTMLCanvasElement;
-  constructor(props: unknown) {
-    Object.assign(this, props);
-  }
-  static create({
-    text,
-    background,
-    colors,
-    distribution = "plastic",
-    gap = 0.1,
-    random = Math.random,
-    font: fontFamily,
-  }: {
+  metrics!: TextMetrics;
+  constructor(props: {
     text: string;
     background: string;
     font: string;
     colors: string[];
     distribution?: "halton" | "kronecker" | "plastic";
     gap?: number;
-    random?: () => number;
+    metrics: TextMetrics;
+    texts?: any[];
+    fontSize?: number;
   }) {
-    // const fontFamily = "blankie";
-    // const font = new FontFace(fontFamily, fontBytes);
-    // await font.load();
-    // document.fonts.add(font);
+    if (props.texts) {
+      Object.assign(this, props);
+      return;
+    }
 
-    const fontSize = fit({
-      fontFamily,
+    const {
       text,
-    });
+      background,
+      colors,
+      distribution = "plastic",
+      gap = 0.1,
+      font: fontFamily,
+      metrics,
+      fontSize,
+    } = props;
 
-    const canvas = document.createElement("canvas");
-    canvas.width = RESOLUTION;
-    canvas.height = RESOLUTION;
-
-    const ctx = canvas.getContext("2d")!;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "alphabetic";
+    // const fontSize = fit({
+    //   fontFamily,
+    //   text,
+    // });
 
     const generator = {
       halton: haltonND.bind(null, [2, 3]),
       kronecker: kroneckerND.bind(null, [1 / 2 ** 0.5, 1 / 5 ** 0.5]),
       plastic: plasticND.bind(null, 2),
-    }[distribution]((random() * 1024) | 0);
+    }[distribution](0 ?? (random() * 1024) | 0);
     let texts = Array.from(take<any>(32, generator)).map(([x, y]) => {
       return {
         x: x * 2 - 1,
@@ -65,11 +63,6 @@ export class Tile {
       };
     });
 
-    const measure = (font: string) => {
-      ctx.font = font;
-      return ctx.measureText(text);
-    };
-    const metrics = measure(`${fontSize}px ${fontFamily}`);
     const getMetrics = (scale: number) => {
       return {
         left: metrics.actualBoundingBoxLeft * scale,
@@ -112,43 +105,81 @@ export class Tile {
       tick();
     }
 
-    return new Tile({
+    Object.assign(this, {
       text,
       texts,
       fontSize,
-      canvas,
-      ctx,
       fontFamily,
       gap,
       background,
+      metrics,
     });
   }
   toCanvas() {
+    const canvas = document.createElement("canvas");
+    canvas.width = RESOLUTION;
+    canvas.height = RESOLUTION;
+
+    const ctx = canvas.getContext("2d")!;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "alphabetic";
+
     const blit = (props: {
       size: number;
       x: number;
       y: number;
       color: string;
     }) => {
-      this.ctx.font = `${this.fontSize * props.size * (1 - this.gap)}px ${
+      ctx.font = `${this.fontSize * props.size * (1 - this.gap)}px ${
         this.fontFamily
       }`;
-      this.ctx.fillStyle = props.color;
+      ctx.fillStyle = props.color;
       instances(props, (instance: any) => {
         const x = ((instance.x + 1) / 2) * RESOLUTION;
         const y = ((-instance.y + 1) / 2) * RESOLUTION;
-        this.ctx.fillText(this.text, x, y);
+        ctx.fillText(this.text, x, y);
       });
     };
 
     const draw = () => {
-      this.ctx.fillStyle = this.background;
-      this.ctx.fillRect(0, 0, RESOLUTION, RESOLUTION);
+      ctx.fillStyle = this.background;
+      ctx.fillRect(0, 0, RESOLUTION, RESOLUTION);
       this.texts.forEach(blit);
     };
     draw();
 
-    return this.canvas;
+    return canvas;
+  }
+  toDataURL() {
+    return this.toCanvas().toDataURL();
+  }
+  toSVG() {
+    return renderToStaticMarkup(
+      <svg style={{ width: 512, height: 512, background: this.background }}>
+        {this.texts.flatMap((text) => {
+          const texts = [] as any;
+          const fontSize = `${this.fontSize * text.size * (1 - this.gap)}px`;
+          instances(text, (instance: any) => {
+            const x = ((instance.x + 1) / 2) * RESOLUTION;
+            const y = ((-instance.y + 1) / 2) * RESOLUTION;
+            texts.push(
+              <text
+                x={x}
+                y={y}
+                style={{
+                  fontSize,
+                }}
+                textAnchor="middle"
+                fill={text.color}
+              >
+                {this.text}
+              </text>
+            );
+          });
+          return texts;
+        })}
+      </svg>
+    );
   }
 }
 
@@ -186,3 +217,20 @@ export function getMetrics({
   ctx.font = `${fontSize}px ${fontFamily}`;
   return ctx.measureText(text);
 }
+
+// export function getMetrics({ font, text }: { font: string; text: string }) {
+//   const canvas = document.createElement("canvas");
+//   canvas.width = RESOLUTION;
+//   canvas.height = RESOLUTION;
+//   const ctx = canvas.getContext("2d")!;
+//   ctx.textAlign = "center";
+//   ctx.textBaseline = "alphabetic";
+//   let fontSize = RESOLUTION / 8;
+//   ctx.font = `${fontSize}px ${font}`;
+//   return ctx.measureText(text);
+// }
+
+// const fontFamily = "blankie";
+// const font = new FontFace(fontFamily, fontBytes);
+// await font.load();
+// document.fonts.add(font);

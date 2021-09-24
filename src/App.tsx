@@ -1,25 +1,89 @@
-import qs from "qs";
+import * as Comlink from "comlink";
+import { useEffect, useState } from "react";
+/* eslint-disable import/no-webpack-loader-syntax */
+import Worker from "worker-loader!./worker";
+import { chance } from "./chance";
+import { fit, Tile } from "./Tile";
 
-export function App({ pdf, svg }: any) {
+export function App(props: any) {
+  const [text, setText] = useState("Katharine");
+  const [tile, setTile] = useState<Tile | null>(null);
+
+  useEffect(() => {
+    const worker = new Worker();
+    const api = Comlink.wrap<any>(worker);
+    const font = "Dancing Script";
+    const fontSize = fit({
+      fontFamily: font,
+      text,
+    });
+    const measure = (font: string) => {
+      const canvas = document.createElement("canvas");
+      const RESOLUTION = 512;
+      canvas.width = RESOLUTION;
+      canvas.height = RESOLUTION;
+      const ctx = canvas.getContext("2d")!;
+      ctx.font = font;
+      return ctx.measureText(text);
+    };
+    const metrics = measure(`${fontSize}px ${font}`);
+    const props = {
+      background: chance.pickone(["#111111", "#EEEEEE"]),
+      colors: ["#DA97B2", "#7EBCBE", "#676396"],
+      font,
+      text,
+      metrics: {
+        actualBoundingBoxAscent: metrics.actualBoundingBoxAscent,
+        actualBoundingBoxDescent: metrics.actualBoundingBoxDescent,
+        actualBoundingBoxLeft: metrics.actualBoundingBoxLeft,
+        actualBoundingBoxRight: metrics.actualBoundingBoxRight,
+        fontBoundingBoxAscent: metrics.fontBoundingBoxAscent,
+        fontBoundingBoxDescent: metrics.fontBoundingBoxDescent,
+        width: metrics.width,
+      },
+      fontSize,
+    };
+    (async () => {
+      const tile = new Tile(await api.tile(props));
+      setTile(tile);
+    })();
+  }, [text]);
+
   return (
     <>
-      <input />
-      <img
-        src={`https://cdn.make.cm/make/t/ba4c9684-a7af-4ca3-b929-291d6c196be3/k/639f5a8a-3056-48ff-bc67-c7613b9ecdca.b6d6a70ce98c5defcbc0282c9660dbc9/sync?${qs.stringify(
-          {
-            format: "png",
-            customSize: {
-              width: "512",
-              height: "512",
-              unit: "px",
-            },
-            data: {
-              canvas: true,
-            },
-            fetchedAt: new Date().getTime().toString(),
-          }
-        )}`}
-      />
+      <input value={text} onChange={(e) => setText(e.target.value)} />
+      {tile ? (
+        <div style={{ display: "flex" }}>
+          <div
+            style={{ width: 512, height: 512 }}
+            dangerouslySetInnerHTML={{
+              __html: (() => tile.toSVG())(),
+            }}
+          ></div>
+          <img src={(() => tile.toDataURL())()} alt="" />
+        </div>
+      ) : null}
+
+      {/* <div style={{ display: "flex" }}>
+        {!LIMIT ? (
+          <img
+            src={`https://cdn.make.cm/make/t/ba4c9684-a7af-4ca3-b929-291d6c196be3/k/639f5a8a-3056-48ff-bc67-c7613b9ecdca.b6d6a70ce98c5defcbc0282c9660dbc9/sync?${qs.stringify(
+              {
+                format: "png",
+                customSize: {
+                  width: "512",
+                  height: "512",
+                  unit: "px",
+                },
+                data: {
+                  canvas: true,
+                },
+                fetchedAt: new Date().getTime().toString(),
+              }
+            )}`}
+          />
+        ) : null}
+      </div> */}
     </>
   );
   // useEffect(() => {

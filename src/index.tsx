@@ -10,13 +10,13 @@ const { templateProps = {} } = window as unknown as {
 };
 
 if (templateProps.canvas) {
-  const tile = Tile.create({
-    background: chance.pickone(["#111111", "#EEEEEE"]),
-    colors: ["#DA97B2", "#7EBCBE", "#676396"],
-    font: "Dancing Script",
-    text: chance.first(),
-  });
-  document.body.appendChild(tile.toCanvas());
+  // const tile = Tile.create({
+  //   background: chance.pickone(["#111111", "#EEEEEE"]),
+  //   colors: ["#DA97B2", "#7EBCBE", "#676396"],
+  //   font: "Dancing Script",
+  //   text: chance.first(),
+  // });
+  // document.body.appendChild(tile.toCanvas());
 } else {
   ReactDOM.render(
     <React.StrictMode>
