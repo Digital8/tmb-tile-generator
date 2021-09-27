@@ -32,14 +32,13 @@ export class Tile {
     }
 
     const {
-      text,
-      background,
       colors,
       distribution = "plastic",
       gap = 0.1,
       font: fontFamily,
       metrics,
       fontSize,
+      ...rest
     } = props;
 
     const generator = {
@@ -99,12 +98,11 @@ export class Tile {
     }
 
     Object.assign(this, {
-      text,
+      ...rest,
       texts,
       fontSize,
       fontFamily,
       gap,
-      background,
       metrics,
     });
   }
