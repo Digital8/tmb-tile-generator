@@ -1,50 +1,63 @@
-import * as Comlink from "comlink";
-import { useEffect, useState } from "react";
-/* eslint-disable import/no-webpack-loader-syntax */
-import Worker from "worker-loader!./worker";
+import qs from "qs";
+import { useState } from "react";
 import { chance } from "./chance";
-import { fit, measure, Tile } from "./Tile";
 
 export function App(props: any) {
-  const [text, setText] = useState(chance.first());
-  const [tile, setTile] = useState<Tile | null>(null);
+  const [colors, setColors] = useState(["#DA97B2", "#7EBCBE", "#676396"]);
+  const [background, setBackground] = useState(
+    chance.pickone(["#111111", "#EEEEEE"])
+  );
+  const [font, setFont] = useState(
+    "https://thatsmyblankie.wpengine.com/wp-content/themes/picostrap-child/fonts/customiser/UnicornsareAwesome.woff2"
+  );
+  const [text, setText] = useState(props.text ?? chance.first());
 
-  useEffect(() => {
-    const worker = new Worker();
-    const api = Comlink.wrap<any>(worker);
-    const font = "Dancing Script";
-    const fontSize = fit({
-      fontFamily: font,
-      text,
-    });
-
-    const metrics = measure({ font: `${fontSize}px ${font}`, text });
-    const props = {
-      background: chance.pickone(["#111111", "#EEEEEE"]),
-      colors: ["#DA97B2", "#7EBCBE", "#676396"],
-      font,
-      text,
-      metrics: {
-        actualBoundingBoxAscent: metrics.actualBoundingBoxAscent,
-        actualBoundingBoxDescent: metrics.actualBoundingBoxDescent,
-        actualBoundingBoxLeft: metrics.actualBoundingBoxLeft,
-        actualBoundingBoxRight: metrics.actualBoundingBoxRight,
-        fontBoundingBoxAscent: metrics.fontBoundingBoxAscent,
-        fontBoundingBoxDescent: metrics.fontBoundingBoxDescent,
-        width: metrics.width,
+  const src = `https://cdn.make.cm/make/t/ba4c9684-a7af-4ca3-b929-291d6c196be3/k/639f5a8a-3056-48ff-bc67-c7613b9ecdca.b6d6a70ce98c5defcbc0282c9660dbc9/sync?${qs.stringify(
+    {
+      format: "svg",
+      customSize: {
+        width: "512",
+        height: "512",
+        unit: "px",
       },
-      fontSize,
-    };
-    (async () => {
-      const tile = new Tile(await api.tile(props));
-      setTile(tile);
-    })();
-  }, [text]);
+      data: {
+        svg: true,
+        colors,
+        background,
+        font,
+      },
+      fetchedAt: new Date().getTime().toString(),
+    }
+  )}`;
 
   return (
     <>
-      <input value={text} onChange={(e) => setText(e.target.value)} />
-      {tile ? (
+      <div>
+        <label>Font</label>
+        <input value={font} onChange={(e) => setFont(e.target.value)} />
+      </div>
+      <div>
+        <label>Text</label>
+        <input value={text} onChange={(e) => setText(e.target.value)} />
+      </div>
+      <div>
+        <label>Background</label>
+        <input
+          value={background}
+          onChange={(e) => setBackground(e.target.value)}
+        />
+      </div>
+      <div>
+        <label>Colors</label>
+        <input
+          value={JSON.stringify(colors)}
+          onChange={(e) => setColors(JSON.parse(e.target.value))}
+        />
+      </div>
+      <div>
+        <img src={src} />
+      </div>
+      {/* {tile ? (
         <div style={{ display: "flex" }}>
           <div
             style={{ width: 512, height: 512 }}
@@ -54,7 +67,7 @@ export function App(props: any) {
           ></div>
           <img src={(() => tile.toDataURL())()} alt="" />
         </div>
-      ) : null}
+      ) : null} */}
 
       {/* <div style={{ display: "flex" }}>
         {!LIMIT ? (
@@ -104,3 +117,37 @@ export function App(props: any) {
   //   </>
   // );
 }
+
+// const [tile, setTile] = useState<Tile | null>(null);
+
+// useEffect(() => {
+//   const worker = new Worker();
+//   const api = Comlink.wrap<any>(worker);
+//   const font = "Dancing Script";
+//   const fontSize = fit({
+//     fontFamily: font,
+//     text,
+//   });
+
+//   const metrics = measure({ font: `${fontSize}px ${font}`, text });
+//   const props = {
+//     background: chance.pickone(["#111111", "#EEEEEE"]),
+//     colors: ["#DA97B2", "#7EBCBE", "#676396"],
+//     font,
+//     text,
+//     metrics: {
+//       actualBoundingBoxAscent: metrics.actualBoundingBoxAscent,
+//       actualBoundingBoxDescent: metrics.actualBoundingBoxDescent,
+//       actualBoundingBoxLeft: metrics.actualBoundingBoxLeft,
+//       actualBoundingBoxRight: metrics.actualBoundingBoxRight,
+//       fontBoundingBoxAscent: metrics.fontBoundingBoxAscent,
+//       fontBoundingBoxDescent: metrics.fontBoundingBoxDescent,
+//       width: metrics.width,
+//     },
+//     fontSize,
+//   };
+//   (async () => {
+//     const tile = new Tile(await api.tile(props));
+//     setTile(tile);
+//   })();
+// }, [text]);

@@ -159,6 +159,7 @@ export class Tile {
                 y={y}
                 style={{
                   fontSize,
+                  fontFamily: this.fontFamily,
                 }}
                 textAnchor="middle"
                 fill={text.color}
