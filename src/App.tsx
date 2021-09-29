@@ -25,6 +25,7 @@ export function App(props: any) {
         colors,
         background,
         font,
+        text,
       },
       fetchedAt: new Date().getTime().toString(),
     }
