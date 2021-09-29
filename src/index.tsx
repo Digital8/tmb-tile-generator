@@ -39,9 +39,9 @@ if (templateProps.svg) {
     });
     const div = document.createElement("div");
     if (templateProps.debug) {
-      div.innerHTML = tile.toSVG();
-    } else {
       div.innerText = JSON.stringify(templateProps);
+    } else {
+      div.innerHTML = tile.toSVG();
     }
     document.body.appendChild(div);
   })();
