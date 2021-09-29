@@ -2,10 +2,40 @@ import { haltonND, kroneckerND, plasticND } from "@thi.ng/lowdisc";
 import { take } from "@thi.ng/transducers";
 import boxIntersect from "box-intersect";
 import { renderToStaticMarkup } from "react-dom/server";
+import Worker from "./tile.worker";
 
 const RESOLUTION = 512;
 const random = Math.random;
 const ITERATIONS = 256;
+
+let worker = Worker();
+worker.onmessage = ({ data }: any) => console.log(data);
+
+export async function makeDataURL(props: any) {
+  const { text, background, colors, font } = props;
+  const url =
+    font ??
+    "https://thatsmyblankie.wpengine.com/wp-content/themes/picostrap-child/fonts/customiser/UnicornsareAwesome.woff2";
+  const fontFamily = "blankie";
+  const fontFace = new FontFace(fontFamily, `url("${url}")`);
+  await fontFace.load();
+  document.fonts.add(fontFace);
+  const fontSize = fit({
+    fontFamily,
+    text,
+  });
+  const metrics = measure({ font: `${fontSize}px ${fontFamily}`, text });
+  const tile = new Tile({
+    font: fontFamily,
+    text,
+    metrics,
+    fontSize,
+    background,
+    colors,
+  });
+  const canvas = tile.toCanvas();
+  return canvas.toDataURL();
+}
 
 export class Tile {
   text!: string;
@@ -146,7 +176,10 @@ export class Tile {
   }
   toSVG() {
     return renderToStaticMarkup(
-      <svg style={{ width: 512, height: 512, background: this.background }}>
+      <svg
+        style={{ width: 512, height: 512, background: this.background }}
+        xmlns="http://www.w3.org/2000/svg"
+      >
         {this.texts.flatMap((text) => {
           const texts = [] as any;
           const fontSize = `${this.fontSize * text.size * (1 - this.gap)}px`;
@@ -206,4 +239,29 @@ export function measure({ font, text }: { font: string; text: string }) {
   ctx.textBaseline = "alphabetic";
   ctx.font = font;
   return ctx.measureText(text);
+}
+
+export async function makeSVG(props: any) {
+  const { text, background, colors, font } = props;
+  const url =
+    font ??
+    "https://thatsmyblankie.wpengine.com/wp-content/themes/picostrap-child/fonts/customiser/UnicornsareAwesome.woff2";
+  const fontFamily = "blankie";
+  const fontFace = new FontFace(fontFamily, `url("${url}")`);
+  await fontFace.load();
+  document.fonts.add(fontFace);
+  const fontSize = fit({
+    fontFamily,
+    text,
+  });
+  const metrics = measure({ font: `${fontSize}px ${fontFamily}`, text });
+  const tile = new Tile({
+    font: fontFamily,
+    text,
+    metrics,
+    fontSize,
+    background,
+    colors,
+  });
+  return tile.toSVG();
 }

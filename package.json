@@ -1,9 +1,11 @@
 {
+  "type": "module",
   "name": "make-hello-world",
   "homepage": "./",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@digitak/esrun": "^1.2.7",
     "@thi.ng/lowdisc": "^0.1.7",
     "@thi.ng/transducers": "^7.9.2",
     "@types/box-intersect": "^1.0.0",
@@ -14,6 +16,8 @@
     "box-intersect": "^1.0.2",
     "chance": "^1.1.8",
     "comlink": "^4.3.1",
+    "esbuild": "^0.13.3",
+    "esbuild-plugin-inline-worker": "^0.1.1",
     "qs": "^6.10.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
@@ -25,7 +29,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "bundle": "esrun bundle.ts"
   },
   "eslintConfig": {
     "extends": [

@@ -1,0 +1,14 @@
+<script type="module">
+  import { makeDataURL } from './Tile.js'
+
+  const src = await makeDataURL({
+    text: 'Test',
+    font: "https://thatsmyblankie.wpengine.com/wp-content/themes/picostrap-child/fonts/customiser/UnicornsareAwesome.woff2",
+    background: '#111111',
+    colors: ["#DA97B2", "#7EBCBE", "#676396"]
+  })
+  
+  const img = document.createElement('img')
+  img.src = src
+  document.body.appendChild(img)
+</script>
