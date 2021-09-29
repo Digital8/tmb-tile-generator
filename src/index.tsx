@@ -35,10 +35,14 @@ if (templateProps.svg) {
       metrics,
       fontSize,
       background,
-      colors,
+      colors: ["#DA97B2", "#7EBCBE", "#676396"],
     });
     const div = document.createElement("div");
-    div.innerHTML = tile.toSVG();
+    if (templateProps.debug) {
+      div.innerHTML = tile.toSVG();
+    } else {
+      div.innerText = JSON.stringify(templateProps);
+    }
     document.body.appendChild(div);
   })();
 } else if (templateProps.pdf) {
