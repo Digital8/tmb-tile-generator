@@ -35,7 +35,7 @@ if (templateProps.svg) {
       metrics,
       fontSize,
       background,
-      colors: ["#DA97B2", "#7EBCBE", "#676396"],
+      colors,
     });
     const div = document.createElement("div");
     if (templateProps.debug) {
