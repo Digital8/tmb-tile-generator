@@ -12,24 +12,14 @@ export function App(props: any) {
   );
   const [text, setText] = useState(props.text ?? chance.first());
 
-  const src = `https://cdn.make.cm/make/t/ba4c9684-a7af-4ca3-b929-291d6c196be3/k/639f5a8a-3056-48ff-bc67-c7613b9ecdca.b6d6a70ce98c5defcbc0282c9660dbc9/sync?${qs.stringify(
-    {
-      format: "svg",
-      customSize: {
-        width: "512",
-        height: "512",
-        unit: "px",
-      },
-      data: {
-        svg: true,
-        colors,
-        background,
-        font,
-        text,
-      },
-      fetchedAt: new Date().getTime().toString(),
-    }
-  )}`;
+  const src = `https://cdn.make.cm/make/s/MeJxBCL1tTQQ?${qs.stringify({
+    data: {
+      background,
+      colors,
+      font,
+      text,
+    },
+  })}`;
 
   return (
     <>
@@ -57,67 +47,84 @@ export function App(props: any) {
       </div>
       <div>
         <img src={src} />
+        <textarea value={src} />
       </div>
-      {/* {tile ? (
-        <div style={{ display: "flex" }}>
-          <div
-            style={{ width: 512, height: 512 }}
-            dangerouslySetInnerHTML={{
-              __html: (() => tile.toSVG())(),
-            }}
-          ></div>
-          <img src={(() => tile.toDataURL())()} alt="" />
-        </div>
-      ) : null} */}
-
-      {/* <div style={{ display: "flex" }}>
-        {!LIMIT ? (
-          <img
-            src={`https://cdn.make.cm/make/t/ba4c9684-a7af-4ca3-b929-291d6c196be3/k/639f5a8a-3056-48ff-bc67-c7613b9ecdca.b6d6a70ce98c5defcbc0282c9660dbc9/sync?${qs.stringify(
-              {
-                format: "png",
-                customSize: {
-                  width: "512",
-                  height: "512",
-                  unit: "px",
-                },
-                data: {
-                  canvas: true,
-                },
-                fetchedAt: new Date().getTime().toString(),
-              }
-            )}`}
-          />
-        ) : null}
-      </div> */}
+      <div>
+        <a
+          href={`https://cdn.make.cm/make/s/LAs9Ky5L4Y98?${qs.stringify({
+            data: {
+              background,
+              colors,
+              font,
+              text,
+            },
+          })}`}
+        >
+          PDF
+        </a>
+      </div>
     </>
   );
-  // useEffect(() => {
-  //   (async () => {
-
-  //   })();
-  // }, []);
-  // return (
-  //   <>
-  //     {pdf ? <img src="./pdf.svg" alt="" /> : null}
-  //     {svg ? (
-  //       <svg viewBox="0 0 512 512" style={{ width: 512, height: 512 }}>
-  //         <text x="50%" y="50%" style={{ fontSize: "72px" }}>
-  //           Test
-  //         </text>
-  //         <rect
-  //           x="0"
-  //           y="0"
-  //           width="512"
-  //           height="512"
-  //           fill="none"
-  //           stroke="hotpink"
-  //         ></rect>
-  //       </svg>
-  //     ) : null}
-  //   </>
-  // );
 }
+
+// useEffect(() => {
+//   (async () => {
+
+//   })();
+// }, []);
+// return (
+//   <>
+//     {pdf ? <img src="./pdf.svg" alt="" /> : null}
+//     {svg ? (
+//       <svg viewBox="0 0 512 512" style={{ width: 512, height: 512 }}>
+//         <text x="50%" y="50%" style={{ fontSize: "72px" }}>
+//           Test
+//         </text>
+//         <rect
+//           x="0"
+//           y="0"
+//           width="512"
+//           height="512"
+//           fill="none"
+//           stroke="hotpink"
+//         ></rect>
+//       </svg>
+//     ) : null}
+//   </>
+// );
+
+// {/* {tile ? (
+//         <div style={{ display: "flex" }}>
+//           <div
+//             style={{ width: 512, height: 512 }}
+//             dangerouslySetInnerHTML={{
+//               __html: (() => tile.toSVG())(),
+//             }}
+//           ></div>
+//           <img src={(() => tile.toDataURL())()} alt="" />
+//         </div>
+//       ) : null} */}
+
+//       {/* <div style={{ display: "flex" }}>
+//         {!LIMIT ? (
+//           <img
+//             src={`https://cdn.make.cm/make/t/ba4c9684-a7af-4ca3-b929-291d6c196be3/k/639f5a8a-3056-48ff-bc67-c7613b9ecdca.b6d6a70ce98c5defcbc0282c9660dbc9/sync?${qs.stringify(
+//               {
+//                 format: "png",
+//                 customSize: {
+//                   width: "512",
+//                   height: "512",
+//                   unit: "px",
+//                 },
+//                 data: {
+//                   canvas: true,
+//                 },
+//                 fetchedAt: new Date().getTime().toString(),
+//               }
+//             )}`}
+//           />
+//         ) : null}
+//       </div> */}
 
 // const [tile, setTile] = useState<Tile | null>(null);
 
