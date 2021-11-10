@@ -2,17 +2,13 @@ import { haltonND, kroneckerND, plasticND } from "@thi.ng/lowdisc";
 import { take } from "@thi.ng/transducers";
 import boxIntersect from "box-intersect";
 import { renderToStaticMarkup } from "react-dom/server";
-import Worker from "./tile.worker";
 
 const RESOLUTION = 512;
 const random = Math.random;
 const ITERATIONS = 256;
 
-let worker = Worker();
-worker.onmessage = ({ data }: any) => console.log(data);
-
 export async function makeDataURL(props: any) {
-  const { text, background, colors, font } = props;
+  const { text, background, colors, font, ...rest } = props;
   const url =
     font ??
     "https://thatsmyblankie.wpengine.com/wp-content/themes/picostrap-child/fonts/customiser/UnicornsareAwesome.woff2";
@@ -32,6 +28,7 @@ export async function makeDataURL(props: any) {
     fontSize,
     background,
     colors,
+    ...rest,
   });
   const canvas = tile.toCanvas();
   return canvas.toDataURL();
@@ -45,7 +42,9 @@ export class Tile {
   fontFamily!: string;
   background!: string;
   metrics!: TextMetrics;
+  layout?: string;
   constructor(props: {
+    layout?: string;
     text: string;
     background: string;
     font: string;
@@ -62,6 +61,7 @@ export class Tile {
     }
 
     const {
+      layout,
       colors,
       distribution = "plastic",
       gap = 0.1,
@@ -71,61 +71,70 @@ export class Tile {
       ...rest
     } = props;
 
-    const generator = {
-      halton: haltonND.bind(null, [2, 3]),
-      kronecker: kroneckerND.bind(null, [1 / 2 ** 0.5, 1 / 5 ** 0.5]),
-      plastic: plasticND.bind(null, 2),
-    }[distribution](0 ?? (random() * 1024) | 0);
-    let texts = Array.from(take<any>(32, generator)).map(([x, y]) => {
-      return {
-        x: x * 2 - 1,
-        y: y * 2 - 1,
-        size: 0.75 + random() * 0.75,
-        color: colors[(colors.length * random()) | 0],
-      };
-    });
-
-    const getMetrics = (scale: number) => {
-      return {
-        left: metrics.actualBoundingBoxLeft * scale,
-        right: metrics.actualBoundingBoxRight * scale,
-        ascent: metrics.actualBoundingBoxAscent * scale,
-        descent: metrics.actualBoundingBoxDescent * scale,
-      };
-    };
-
-    const tick = () => {
-      const boxes = [] as any;
-      texts.forEach((text: any) => {
-        delete text.op;
-        const metrics = getMetrics(text.size);
-        instances(text, (instance: any) => {
-          const x = ((instance.x + 1) / 2) * RESOLUTION;
-          const y = ((-instance.y + 1) / 2) * RESOLUTION;
-          const xMin = x - metrics.left;
-          const yMin = y - metrics.ascent;
-          const box = [
-            xMin,
-            yMin,
-            xMin + metrics.left + metrics.right,
-            yMin + metrics.ascent + metrics.descent,
-          ] as any;
-          box.text = text;
-          boxes.push(box);
+    const texts = (() => {
+      if (layout === "stacked") {
+        return Array.from({ length: 4 }).map((_, i) => ({
+          x: -1 + 0.5 * i,
+          y: 0,
+          size: 1,
+          color: colors[(colors.length * random()) | 0],
+        }));
+      } else {
+        const generator = {
+          halton: haltonND.bind(null, [2, 3]),
+          kronecker: kroneckerND.bind(null, [1 / 2 ** 0.5, 1 / 5 ** 0.5]),
+          plastic: plasticND.bind(null, 2),
+        }[distribution](0 ?? (random() * 1024) | 0);
+        const texts = Array.from(take<any>(32, generator)).map(([x, y]) => {
+          return {
+            x: x * 2 - 1,
+            y: y * 2 - 1,
+            size: 0.75 + random() * 0.75,
+            color: colors[(colors.length * random()) | 0],
+          };
         });
-      });
-      boxIntersect(boxes, (i, j) => {
-        [i, j].forEach((index) => (boxes[index].text.op = "shrink"));
-      });
-      const delta = 1e-3 * 5;
-      texts.forEach((t: any) => {
-        t.size *= t.op === "shrink" ? 1 - delta : 1 + delta;
-      });
-    };
-
-    for (let index = 0; index < ITERATIONS; index++) {
-      tick();
-    }
+        const getMetrics = (scale: number) => {
+          return {
+            left: metrics.actualBoundingBoxLeft * scale,
+            right: metrics.actualBoundingBoxRight * scale,
+            ascent: metrics.actualBoundingBoxAscent * scale,
+            descent: metrics.actualBoundingBoxDescent * scale,
+          };
+        };
+        const tick = () => {
+          const boxes = [] as any;
+          texts.forEach((text: any) => {
+            delete text.op;
+            const metrics = getMetrics(text.size);
+            instances(text, (instance: any) => {
+              const x = ((instance.x + 1) / 2) * RESOLUTION;
+              const y = ((-instance.y + 1) / 2) * RESOLUTION;
+              const xMin = x - metrics.left;
+              const yMin = y - metrics.ascent;
+              const box = [
+                xMin,
+                yMin,
+                xMin + metrics.left + metrics.right,
+                yMin + metrics.ascent + metrics.descent,
+              ] as any;
+              box.text = text;
+              boxes.push(box);
+            });
+          });
+          boxIntersect(boxes, (i, j) => {
+            [i, j].forEach((index) => (boxes[index].text.op = "shrink"));
+          });
+          const delta = 1e-3 * 5;
+          texts.forEach((t: any) => {
+            t.size *= t.op === "shrink" ? 1 - delta : 1 + delta;
+          });
+        };
+        for (let index = 0; index < ITERATIONS; index++) {
+          tick();
+        }
+        return texts;
+      }
+    })();
 
     Object.assign(this, {
       ...rest,
@@ -227,7 +236,7 @@ export function fit({
     font: `${RESOLUTION / 8}px ${fontFamily}`,
     text,
   });
-  return (RESOLUTION / 8) * (RESOLUTION / 3 / width);
+  return (RESOLUTION / 8) * (RESOLUTION / 4 / width);
 }
 
 export function measure({ font, text }: { font: string; text: string }) {

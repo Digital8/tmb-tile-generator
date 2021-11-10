@@ -1,9 +1,13 @@
 import qs from "qs";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { chance } from "./chance";
+import { makeDataURL } from "./Tile";
 
 export function App(props: any) {
   const [colors, setColors] = useState(["#DA97B2", "#7EBCBE", "#676396"]);
+
+  const [layout, setLayout] = useState("");
+
   const [background, setBackground] = useState(
     chance.pickone(["#111111", "#EEEEEE"])
   );
@@ -12,17 +16,37 @@ export function App(props: any) {
   );
   const [text, setText] = useState(props.text ?? chance.first());
 
-  const src = `https://cdn.make.cm/make/s/MeJxBCL1tTQQ?${qs.stringify({
-    data: {
-      background,
-      colors,
-      font,
-      text,
-    },
-  })}`;
+  const [src, setSrc] = useState<any>(null);
+
+  useEffect(() => {
+    (async () => {
+      setSrc(
+        await makeDataURL({
+          background,
+          colors,
+          text,
+          font,
+          layout,
+        })
+      );
+    })();
+  }, []);
+
+  // const src = `https://cdn.make.cm/make/s/MeJxBCL1tTQQ?${qs.stringify({
+  //   data: {
+  //     background,
+  //     colors,
+  //     font,
+  //     text,
+  //   },
+  // })}`;
 
   return (
     <>
+      <div>
+        <label>Layout</label>
+        <input value={layout} onChange={(e) => setLayout(e.target.value)} />
+      </div>
       <div>
         <label>Font</label>
         <input value={font} onChange={(e) => setFont(e.target.value)} />
@@ -45,11 +69,8 @@ export function App(props: any) {
           onChange={(e) => setColors(JSON.parse(e.target.value))}
         />
       </div>
-      <div>
-        <img src={src} />
-        <textarea value={src} />
-      </div>
-      <div>
+      <div>{src ? <img src={src} /> : null}</div>
+      {/* <div>
         <a
           href={`https://cdn.make.cm/make/s/LAs9Ky5L4Y98?${qs.stringify({
             data: {
@@ -62,7 +83,7 @@ export function App(props: any) {
         >
           PDF
         </a>
-      </div>
+      </div> */}
     </>
   );
 }
