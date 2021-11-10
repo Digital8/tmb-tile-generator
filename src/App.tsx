@@ -6,7 +6,7 @@ import { makeDataURL } from "./Tile";
 export function App(props: any) {
   const [colors, setColors] = useState(["#DA97B2", "#7EBCBE", "#676396"]);
 
-  const [layout, setLayout] = useState("");
+  const [layout, setLayout] = useState("stacked");
 
   const [background, setBackground] = useState(
     chance.pickone(["#111111", "#EEEEEE"])

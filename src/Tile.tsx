@@ -61,6 +61,7 @@ export class Tile {
     }
 
     const {
+      text,
       layout,
       colors,
       distribution = "plastic",
@@ -73,12 +74,24 @@ export class Tile {
 
     const texts = (() => {
       if (layout === "stacked") {
-        return Array.from({ length: 4 }).map((_, i) => ({
-          x: -1 + 0.5 * i,
-          y: 0,
-          size: 1,
-          color: colors[(colors.length * random()) | 0],
-        }));
+        const metrics = measure({ font: `${fontSize}px ${fontFamily}`, text });
+        const lines = Math.floor(
+          RESOLUTION /
+            (metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent)
+        );
+        const texts: any[] = [];
+        for (let j = 0; j < lines; j++) {
+          let shift = Math.random() * 0.5;
+          for (let i = 0; i < 4; i++) {
+            texts.push({
+              x: -1 + 0.5 * i + shift,
+              y: -1 + (2 / lines) * j,
+              size: 1,
+              color: colors[(colors.length * random()) | 0],
+            });
+          }
+        }
+        return texts;
       } else {
         const generator = {
           halton: haltonND.bind(null, [2, 3]),
@@ -137,12 +150,13 @@ export class Tile {
     })();
 
     Object.assign(this, {
-      ...rest,
+      text,
       texts,
       fontSize,
       fontFamily,
       gap,
       metrics,
+      ...rest,
     });
   }
   toCanvas() {
