@@ -16,7 +16,7 @@ if (window.location.search.length > 1) {
 
 if (templateProps.svg) {
   (async () => {
-    const { text, background, colors } = templateProps;
+    const { text, background, colors, layout } = templateProps;
     const url =
       templateProps.font ??
       "https://thatsmyblankie.wpengine.com/wp-content/themes/picostrap-child/fonts/customiser/UnicornsareAwesome.woff2";
@@ -36,6 +36,7 @@ if (templateProps.svg) {
       fontSize,
       background,
       colors,
+      layout,
     });
     const div = document.createElement("div");
     if (templateProps.debug) {
