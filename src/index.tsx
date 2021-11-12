@@ -16,7 +16,7 @@ if (window.location.search.length > 1) {
 
 if (templateProps.svg) {
   (async () => {
-    const { text, background, colors, layout } = templateProps;
+    const { text, ...rest } = templateProps;
     const url =
       templateProps.font ??
       "https://thatsmyblankie.wpengine.com/wp-content/themes/picostrap-child/fonts/customiser/UnicornsareAwesome.woff2";
@@ -34,9 +34,7 @@ if (templateProps.svg) {
       text,
       metrics,
       fontSize,
-      background,
-      colors,
-      layout,
+      ...rest,
     });
     const div = document.createElement("div");
     if (templateProps.debug) {
@@ -73,13 +71,3 @@ if (templateProps.svg) {
     document.getElementById("root")
   );
 }
-
-// console.log(
-//   qs.stringify(
-//     {
-//       background: chance.pickone(["#111111", "#EEEEEE"]),
-//       colors: ["#DA97B2", "#7EBCBE", "#676396"],
-//     },
-//     { encodeValuesOnly: true }
-//   )
-// );

@@ -46,9 +46,9 @@ export class Tile {
   constructor(props: {
     layout?: string;
     text: string;
-    background: string;
+    background?: string;
     font: string;
-    colors: string[];
+    colors?: string[];
     distribution?: "halton" | "kronecker" | "plastic";
     gap?: number;
     metrics: TextMetrics;
@@ -61,9 +61,10 @@ export class Tile {
     }
 
     const {
+      background = "transparent",
       text,
       layout,
-      colors,
+      colors = ["#111111"],
       distribution = "plastic",
       gap = 0.1,
       font: fontFamily,
@@ -156,6 +157,7 @@ export class Tile {
       fontFamily,
       gap,
       metrics,
+      background,
       ...rest,
     });
   }
