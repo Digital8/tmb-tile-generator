@@ -16,9 +16,9 @@ if (window.location.search.length > 1) {
 
 if (templateProps.svg) {
   (async () => {
-    const { text, ...rest } = templateProps;
+    const { text, font: fontURL, ...rest } = templateProps;
     const url =
-      templateProps.font ??
+      fontURL ??
       "https://thatsmyblankie.wpengine.com/wp-content/themes/picostrap-child/fonts/customiser/UnicornsareAwesome.woff2";
     const fontFamily = "blankie";
     const fontFace = new FontFace(fontFamily, `url("${url}")`);

@@ -18,6 +18,8 @@ export function App(props: any) {
 
   const [src, setSrc] = useState<any>(null);
 
+  const [gap, setGap] = useState<any>(0.1);
+
   useEffect(() => {
     (async () => {
       setSrc(
@@ -27,6 +29,7 @@ export function App(props: any) {
           text,
           font,
           layout,
+          gap,
         })
       );
     })();
@@ -43,10 +46,6 @@ export function App(props: any) {
 
   return (
     <>
-      <div>
-        <label>Layout</label>
-        <input value={layout} onChange={(e) => setLayout(e.target.value)} />
-      </div>
       <div>
         <label>Font</label>
         <input value={font} onChange={(e) => setFont(e.target.value)} />
@@ -69,6 +68,18 @@ export function App(props: any) {
           onChange={(e) => setColors(JSON.parse(e.target.value))}
         />
       </div>
+      <div>
+        <label>Layout</label>
+        <input value={layout} onChange={(e) => setLayout(e.target.value)} />
+      </div>
+      <div>
+        <label>Gap</label>
+        <input
+          value={gap}
+          onChange={(e) => setGap(parseFloat(e.target.value))}
+        />
+      </div>
+
       <div>{src ? <img src={src} /> : null}</div>
       {/* <div>
         <a
