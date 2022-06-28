@@ -4,21 +4,24 @@ import { chance } from "./chance";
 import { makeDataURL } from "./Tile";
 
 export function App(props: any) {
-  const [colors, setColors] = useState(["#DA97B2", "#7EBCBE", "#676396"]);
+  const [colors, setColors] = useState(
+    props.colors ?? ["#DA97B2", "#7EBCBE", "#676396"]
+  );
 
-  const [layout, setLayout] = useState("stacked");
+  const [layout, setLayout] = useState(props.layout ?? "");
 
   const [background, setBackground] = useState(
-    chance.pickone(["#111111", "#EEEEEE"])
+    props.background ?? chance.pickone(["#111111", "#EEEEEE"])
   );
   const [font, setFont] = useState(
-    "https://thatsmyblankie.wpengine.com/wp-content/themes/picostrap-child/fonts/customiser/UnicornsareAwesome.woff2"
+    props.font ??
+      "https://thatsmyblankie.wpengine.com/wp-content/themes/picostrap-child/fonts/customiser/UnicornsareAwesome.woff2"
   );
   const [text, setText] = useState(props.text ?? chance.first());
 
   const [src, setSrc] = useState<any>(null);
 
-  const [gap, setGap] = useState<any>(0.1);
+  const [gap, setGap] = useState<any>(props.gap ?? 0.1);
 
   useEffect(() => {
     (async () => {
@@ -33,7 +36,7 @@ export function App(props: any) {
         })
       );
     })();
-  }, []);
+  }, [background, colors, text, font, layout, gap]);
 
   // const src = `https://cdn.make.cm/make/s/MeJxBCL1tTQQ?${qs.stringify({
   //   data: {
@@ -70,11 +73,16 @@ export function App(props: any) {
       </div>
       <div>
         <label>Layout</label>
-        <input value={layout} onChange={(e) => setLayout(e.target.value)} />
+        <select value={layout} onChange={(e) => setLayout(e.target.value)}>
+          <option value=""></option>
+          <option value="stacked">stacked</option>
+        </select>
       </div>
       <div>
         <label>Gap</label>
         <input
+          type="number"
+          step="0.1"
           value={gap}
           onChange={(e) => setGap(parseFloat(e.target.value))}
         />
